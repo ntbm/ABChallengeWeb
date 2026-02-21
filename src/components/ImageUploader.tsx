@@ -13,18 +13,17 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
   const { t } = useTranslation()
   const { getThumbUrl } = useThumbCache()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const dropZoneRef = useRef<HTMLDivElement>(null)
   
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   const thumbUrl = tile.thumbFileId ? getThumbUrl(tile.thumbFileId) : null
   const displayUrl = previewUrl || thumbUrl
 
-  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  const processFile = useCallback(async (file: File) => {
     // Validate file
     const validation = validateImageFile(file)
     if (!validation.valid) {
@@ -61,6 +60,44 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
     }
   }, [tile.id])
 
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    processFile(file)
+  }, [processFile])
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    // Only set isDragging to false if we're leaving the dropzone (not entering a child)
+    if (e.currentTarget === dropZoneRef.current) {
+      setIsDragging(false)
+    }
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      const file = files[0]
+      processFile(file)
+    }
+  }, [processFile])
+
   const handleRemove = useCallback(async () => {
     setIsUploading(true)
     setError(null)
@@ -84,20 +121,58 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
         {t('tileDetail.imageSection')}
       </h3>
 
-      {/* Image Preview */}
-      <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+      {/* Image Preview / Dropzone */}
+      <div
+        ref={dropZoneRef}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        className={`relative aspect-video rounded-lg overflow-hidden flex items-center justify-center transition-colors ${
+          isDragging
+            ? 'bg-blue-100 border-2 border-blue-400 border-dashed'
+            : displayUrl
+            ? 'bg-gray-100'
+            : 'bg-gray-100 border-2 border-gray-300 border-dashed hover:border-gray-400'
+        }`}
+      >
         {displayUrl ? (
-          <img
-            src={displayUrl}
-            alt={`${tile.id} thumbnail`}
-            className="w-full h-full object-contain"
-          />
+          <>
+            <img
+              src={displayUrl}
+              alt={`${tile.id} thumbnail`}
+              className="w-full h-full object-contain"
+            />
+            {/* Drag overlay when image exists */}
+            {isDragging && (
+              <div className="absolute inset-0 bg-blue-500/80 flex items-center justify-center">
+                <div className="text-white text-center">
+                  <svg className="h-12 w-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <p className="font-medium">{t('tileDetail.dropHere')}</p>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
-          <div className="text-gray-400 text-center">
-            <svg className="h-16 w-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <p className="text-sm">{t('tileDetail.noImage')}</p>
+          <div className="text-gray-400 text-center p-6">
+            {isDragging ? (
+              <div className="text-blue-500">
+                <svg className="h-12 w-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="font-medium">{t('tileDetail.dropHere')}</p>
+              </div>
+            ) : (
+              <>
+                <svg className="h-12 w-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm mb-1">{t('tileDetail.noImage')}</p>
+                <p className="text-xs text-gray-400">{t('tileDetail.dragOrClick')}</p>
+              </>
+            )}
           </div>
         )}
       </div>

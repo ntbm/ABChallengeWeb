@@ -34,6 +34,8 @@
     "selectImage": "Bild wählen",
     "removeImage": "Bild entfernen",
     "noImage": "Kein Bild vorhanden",
+    "dragOrClick": "Bild hierher ziehen oder klicken",
+    "dropHere": "Bild hier ablegen",
     "saving": "Speichert...",
     "saved": "Gespeichert",
     "saveError": "Fehler beim Speichern"

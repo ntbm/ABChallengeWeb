@@ -34,6 +34,8 @@
     "selectImage": "Select image",
     "removeImage": "Remove image",
     "noImage": "No image",
+    "dragOrClick": "Drag image here or click",
+    "dropHere": "Drop image here",
     "saving": "Saving...",
     "saved": "Saved",
     "saveError": "Error saving"

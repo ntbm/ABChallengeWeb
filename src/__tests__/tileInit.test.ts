@@ -34,8 +34,10 @@ describe('Tile Initialization', () => {
 })
 
 describe('Tile Updates', () => {
-  it('should update specific tile while preserving others', () => {
+  it('should update specific tile while preserving others', async () => {
     const tiles = createInitialTiles()
+    // Wait a tiny bit to ensure different timestamp
+    await new Promise(resolve => setTimeout(resolve, 10))
     const updated = updateTile(tiles, { id: 'A', note: 'Test note' })
     
     expect(updated).toHaveLength(26)
