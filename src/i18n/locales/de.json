@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "TileBoard A–Z",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "remove": "Entfernen",
+    "close": "Schließen",
+    "back": "Zurück"
+  },
+  "auth": {
+    "loginWithGoogle": "Mit Google anmelden",
+    "logout": "Abmelden",
+    "loginDescription": "Deine Daten werden sicher in deinem Google Drive gespeichert (Tiles JSON + Thumbnails).",
+    "loggingIn": "Anmeldung läuft...",
+    "loginError": "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+    "sessionExpired": "Sitzung abgelaufen. Bitte melde dich erneut an."
+  },
+  "tiles": {
+    "title": "Meine Tiles",
+    "emptyNote": "Keine Notiz",
+    "dateSet": "Datum gesetzt",
+    "dateNotSet": "Kein Datum",
+    "notePresent": "Notiz vorhanden"
+  },
+  "tileDetail": {
+    "title": "Tile Details",
+    "dateEnabled": "Datum setzen",
+    "selectDate": "Datum auswählen",
+    "noteLabel": "Notiz",
+    "notePlaceholder": "Gib hier deine Notiz ein...",
+    "imageSection": "Bild",
+    "selectImage": "Bild wählen",
+    "removeImage": "Bild entfernen",
+    "noImage": "Kein Bild vorhanden",
+    "saving": "Speichert...",
+    "saved": "Gespeichert",
+    "saveError": "Fehler beim Speichern"
+  },
+  "offline": {
+    "banner": "Offline - Änderungen werden lokal zwischengespeichert",
+    "pendingSync": "Ausstehende Synchronisation",
+    "syncError": "Synchronisation fehlgeschlagen"
+  },
+  "language": {
+    "switchTo": "Sprache wechseln",
+    "de": "Deutsch",
+    "en": "English"
+  }
+}

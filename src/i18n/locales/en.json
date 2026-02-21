@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "TileBoard A–Z",
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "close": "Close",
+    "back": "Back"
+  },
+  "auth": {
+    "loginWithGoogle": "Sign in with Google",
+    "logout": "Sign out",
+    "loginDescription": "Your data is securely stored in your Google Drive (Tiles JSON + Thumbnails).",
+    "loggingIn": "Signing in...",
+    "loginError": "Sign in failed. Please try again.",
+    "sessionExpired": "Session expired. Please sign in again."
+  },
+  "tiles": {
+    "title": "My Tiles",
+    "emptyNote": "No note",
+    "dateSet": "Date set",
+    "dateNotSet": "No date",
+    "notePresent": "Note present"
+  },
+  "tileDetail": {
+    "title": "Tile Details",
+    "dateEnabled": "Set date",
+    "selectDate": "Select date",
+    "noteLabel": "Note",
+    "notePlaceholder": "Enter your note here...",
+    "imageSection": "Image",
+    "selectImage": "Select image",
+    "removeImage": "Remove image",
+    "noImage": "No image",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "saveError": "Error saving"
+  },
+  "offline": {
+    "banner": "Offline - Changes are stored locally",
+    "pendingSync": "Pending synchronization",
+    "syncError": "Synchronization failed"
+  },
+  "language": {
+    "switchTo": "Switch language",
+    "de": "Deutsch",
+    "en": "English"
+  }
+}
