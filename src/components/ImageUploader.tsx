@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Tile } from '@/models/tile'
-import { createThumbnail, validateImageFile } from '@/utils/imageThumb'
+import { createThumbnail, validateImageFile, isHeicFile } from '@/utils/imageThumb'
 import { uploadThumbnail, removeThumbnail } from '@/services/thumbStorage'
 import { useThumbCache } from '@/services/thumbCache'
 
@@ -24,6 +24,17 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
   const displayUrl = previewUrl || thumbUrl
 
   const processFile = useCallback(async (file: File) => {
+    console.log('Processing file:', file.name, 'Type:', file.type, 'Size:', file.size)
+    
+    // Check for HEIC files early with better error message
+    if (isHeicFile(file)) {
+      setError(
+        'HEIC/HEIF images are not supported by web browsers. ' +
+        'Please export as JPEG from Photos app: Select photo > File > Export > Export Unmodified Original'
+      )
+      return
+    }
+
     // Validate file
     const validation = validateImageFile(file)
     if (!validation.valid) {
@@ -49,6 +60,7 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
       setPreviewUrl(null)
       URL.revokeObjectURL(objectUrl)
     } catch (err) {
+      console.error('Upload error:', err)
       setError(err instanceof Error ? err.message : 'Upload failed')
       setPreviewUrl(null)
     } finally {
@@ -180,7 +192,7 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
       {/* Error Message */}
       {error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 text-sm">{error}</p>
+          <p className="text-red-700 text-sm whitespace-pre-wrap">{error}</p>
         </div>
       )}
 
@@ -189,7 +201,7 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/gif,image/webp"
           onChange={handleFileSelect}
           className="hidden"
         />

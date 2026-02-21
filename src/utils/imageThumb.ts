@@ -2,6 +2,19 @@ const MAX_SIZE = parseInt(import.meta.env.VITE_THUMB_MAX_SIZE || '512', 10)
 const QUALITY = 0.75
 
 export async function createThumbnail(file: File): Promise<Blob> {
+  // Check if it's a HEIC file - browsers can't handle these natively
+  const isHeic = file.type === 'image/heic' || 
+                 file.type === 'image/heif' || 
+                 file.name.toLowerCase().endsWith('.heic') ||
+                 file.name.toLowerCase().endsWith('.heif')
+  
+  if (isHeic) {
+    throw new Error(
+      'HEIC/HEIF images are not supported. ' +
+      'Please convert to JPEG first or use Export > Export Unmodified Original from Photos app.'
+    )
+  }
+
   return new Promise((resolve, reject) => {
     const img = new Image()
     const canvas = document.createElement('canvas')
@@ -12,7 +25,14 @@ export async function createThumbnail(file: File): Promise<Blob> {
       return
     }
 
+    let objectUrl: string | null = null
+
     img.onload = () => {
+      // Revoke object URL to free memory
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl)
+      }
+
       // Calculate new dimensions while maintaining aspect ratio
       let { width, height } = img
       
@@ -37,49 +57,64 @@ export async function createThumbnail(file: File): Promise<Blob> {
       ctx.drawImage(img, 0, 0, width, height)
 
       // Try WebP first, fall back to JPEG
-      const tryWebP = canvas.toDataURL('image/webp', QUALITY)
+      let outputFormat: 'image/webp' | 'image/jpeg' = 'image/webp'
       
-      if (tryWebP.length > 100 && !tryWebP.includes('data:image/png')) {
-        // WebP is supported
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              resolve(blob)
-            } else {
-              reject(new Error('Failed to create WebP blob'))
-            }
-          },
-          'image/webp',
-          QUALITY
-        )
-      } else {
-        // Fall back to JPEG
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              resolve(blob)
-            } else {
-              reject(new Error('Failed to create JPEG blob'))
-            }
-          },
-          'image/jpeg',
-          QUALITY
-        )
+      // Test if WebP is supported
+      const testCanvas = document.createElement('canvas')
+      testCanvas.width = 1
+      testCanvas.height = 1
+      const testDataUrl = testCanvas.toDataURL('image/webp')
+      
+      if (testDataUrl.indexOf('data:image/webp') !== 0) {
+        outputFormat = 'image/jpeg'
       }
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob)
+          } else {
+            reject(new Error(`Failed to create ${outputFormat === 'image/webp' ? 'WebP' : 'JPEG'} blob`))
+          }
+        },
+        outputFormat,
+        QUALITY
+      )
     }
 
     img.onerror = () => {
-      reject(new Error('Failed to load image'))
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl)
+      }
+      
+      // More specific error message based on file type
+      if (file.type === '' || file.type === 'application/octet-stream') {
+        reject(new Error(
+          'Could not load image. The file may be corrupted or in an unsupported format. ' +
+          'Try exporting from Photos app as JPEG.'
+        ))
+      } else {
+        reject(new Error(`Failed to load image (type: ${file.type}). The file may be corrupted.`))
+      }
     }
 
-    img.src = URL.createObjectURL(file)
+    objectUrl = URL.createObjectURL(file)
+    img.src = objectUrl
   })
 }
 
 export function validateImageFile(file: File): { valid: boolean; error?: string } {
   // Check file type
-  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic']
-  if (!validTypes.includes(file.type) && !file.name.endsWith('.heic')) {
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif']
+  
+  // HEIC/HEIF warning - we accept them but will show a better error later
+  const isHeic = file.type === 'image/heic' || 
+                 file.type === 'image/heif' || 
+                 file.name.toLowerCase().endsWith('.heic') ||
+                 file.name.toLowerCase().endsWith('.heif')
+  
+  // Accept HEIC for now but warn later during processing
+  if (!validTypes.includes(file.type) && !isHeic && !file.name.match(/\.(jpe?g|png|gif|webp|heic|heif)$/i)) {
     return { valid: false, error: 'Invalid file type. Please use JPEG, PNG, GIF, or WebP.' }
   }
 
@@ -90,4 +125,11 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
   }
 
   return { valid: true }
+}
+
+export function isHeicFile(file: File): boolean {
+  return file.type === 'image/heic' || 
+         file.type === 'image/heif' || 
+         file.name.toLowerCase().endsWith('.heic') ||
+         file.name.toLowerCase().endsWith('.heif')
 }
