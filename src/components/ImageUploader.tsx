@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Tile } from '@/models/tile'
 import { createThumbnail, validateImageFile, isHeicFile } from '@/utils/imageThumb'
 import { uploadThumbnail, removeThumbnail } from '@/services/thumbStorage'
-import { useThumbCache } from '@/services/thumbCache'
+import { useThumbnail } from '@/services/thumbCache'
 
 interface ImageUploaderProps {
   tile: Tile
@@ -11,7 +11,7 @@ interface ImageUploaderProps {
 
 export function ImageUploader({ tile }: ImageUploaderProps) {
   const { t } = useTranslation()
-  const { getThumbUrl } = useThumbCache()
+  const { url, loading: thumbLoading } = useThumbnail(tile.thumbFileId)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropZoneRef = useRef<HTMLDivElement>(null)
   
@@ -20,8 +20,7 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
 
-  const thumbUrl = tile.thumbFileId ? getThumbUrl(tile.thumbFileId) : null
-  const displayUrl = previewUrl || thumbUrl
+  const displayUrl = previewUrl || url
 
   const processFile = useCallback(async (file: File) => {
     console.log('Processing file:', file.name, 'Type:', file.type, 'Size:', file.size)
@@ -167,6 +166,26 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
               </div>
             )}
           </>
+        ) : thumbLoading ? (
+          <div className="text-gray-400 text-center">
+            <svg className="animate-spin h-10 w-10 mx-auto mb-2" viewBox="0 0 24 24">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            <p className="text-sm">{t('app.loading')}</p>
+          </div>
         ) : (
           <div className="text-gray-400 text-center p-6">
             {isDragging ? (

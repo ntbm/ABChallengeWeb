@@ -168,6 +168,27 @@ export async function getFileContent(fileId: string): Promise<string> {
   return response.text()
 }
 
+export async function getFileBlob(fileId: string): Promise<Blob> {
+  const headers = await getHeaders()
+  
+  const response = await fetch(
+    `${API_BASE}/files/${fileId}?alt=media`,
+    { headers }
+  )
+  
+  if (!response.ok) {
+    if (response.status === 403) {
+      throw new Error(`Access denied (403). The file may have been deleted or you don't have permission.`)
+    }
+    if (response.status === 404) {
+      throw new Error(`File not found (404). The file may have been deleted.`)
+    }
+    throw new Error(`Failed to get file: ${response.statusText}`)
+  }
+  
+  return response.blob()
+}
+
 export async function uploadBlob(
   name: string, 
   blob: Blob, 
