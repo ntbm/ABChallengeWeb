@@ -59,7 +59,7 @@ class GoogleAuthService {
           }
           
           // Store in sessionStorage for page reloads
-          sessionStorage.setItem('tileboard_tokens', JSON.stringify(this.tokens))
+          sessionStorage.setItem('abchallenge_tokens', JSON.stringify(this.tokens))
           
           this.callbackQueue.forEach(cb => cb(this.tokens))
           this.callbackQueue = []
@@ -69,7 +69,7 @@ class GoogleAuthService {
   }
 
   loadTokensFromStorage(): boolean {
-    const stored = sessionStorage.getItem('tileboard_tokens')
+    const stored = sessionStorage.getItem('abchallenge_tokens')
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as AuthTokens
@@ -79,7 +79,7 @@ class GoogleAuthService {
           return true
         }
       } catch {
-        sessionStorage.removeItem('tileboard_tokens')
+        sessionStorage.removeItem('abchallenge_tokens')
       }
     }
     return false
@@ -108,14 +108,14 @@ class GoogleAuthService {
 
   signOut(): void {
     this.tokens = null
-    sessionStorage.removeItem('tileboard_tokens')
+    sessionStorage.removeItem('abchallenge_tokens')
   }
 
   getAccessToken(): string | null {
     // Check if token is expired
     if (this.tokens && this.tokens.expiresAt <= Date.now() + 5 * 60 * 1000) {
       this.tokens = null
-      sessionStorage.removeItem('tileboard_tokens')
+      sessionStorage.removeItem('abchallenge_tokens')
       return null
     }
     return this.tokens?.accessToken || null

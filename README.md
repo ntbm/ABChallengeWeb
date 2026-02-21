@@ -1,4 +1,4 @@
-# TileBoard A–Z
+# ABChallenge Tracker
 
 A frontend-only SPA for managing A-Z tiles with notes, dates, and thumbnails. All data is stored in the user's Google Drive.
 
@@ -53,7 +53,7 @@ cp .env.example .env
 Edit `.env`:
 ```
 VITE_GOOGLE_CLIENT_ID=your_actual_client_id_here
-VITE_APP_FOLDER_NAME=TileBoard
+VITE_APP_FOLDER_NAME=ABChallenge
 VITE_THUMB_MAX_SIZE=512
 ```
 
@@ -68,7 +68,7 @@ npm run dev
 The app creates the following structure in your Google Drive:
 
 ```
-TileBoard/                    # App folder
+ABChallenge/                    # App folder
 ├── tiles.json               # Main data file (all tiles data)
 └── thumbs/                  # Thumbnail images (optional subfolder)
     ├── thumb_A_123456.webp

@@ -1,7 +1,7 @@
 import { Tile, createInitialTiles } from '@/models/tile'
 import * as driveApi from './driveApi'
 
-const APP_FOLDER_NAME = import.meta.env.VITE_APP_FOLDER_NAME || 'TileBoard'
+const APP_FOLDER_NAME = import.meta.env.VITE_APP_FOLDER_NAME || 'ABChallenge'
 const TILES_FILE_NAME = 'tiles.json'
 
 class DriveStorage {

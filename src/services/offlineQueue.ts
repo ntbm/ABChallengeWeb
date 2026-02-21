@@ -1,6 +1,6 @@
 import { Tile } from '@/models/tile'
 
-const STORAGE_KEY = 'tileboard_pending_changes'
+const STORAGE_KEY = 'abchallenge_pending_changes'
 
 interface PendingSnapshot {
   tiles: Tile[]
