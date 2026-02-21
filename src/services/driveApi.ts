@@ -15,27 +15,46 @@ export interface DriveFile {
   name: string
   mimeType: string
   modifiedTime?: string
+  createdTime?: string
 }
 
 export async function findFileByName(name: string, parentId?: string): Promise<DriveFile | null> {
   const headers = await getHeaders()
   
-  let query = `name='${name}' and trashed=false`
+  // Escape single quotes in filename
+  const escapedName = name.replace(/'/g, "\\'")
+  let query = `name='${escapedName}' and trashed=false`
+  
+  // If looking for folder, add mimeType filter
+  if (parentId === undefined) {
+    query += ` and mimeType='application/vnd.google-apps.folder'`
+  }
+  
   if (parentId) {
     query += ` and '${parentId}' in parents`
   }
   
+  // Order by modifiedTime desc to get most recent first
   const response = await fetch(
-    `${API_BASE}/files?q=${encodeURIComponent(query)}&spaces=drive&fields=files(id,name,mimeType,modifiedTime)`,
+    `${API_BASE}/files?q=${encodeURIComponent(query)}&spaces=drive&fields=files(id,name,mimeType,modifiedTime,createdTime)&orderBy=modifiedTime desc`,
     { headers }
   )
   
   if (!response.ok) {
-    throw new Error(`Failed to find file: ${response.statusText}`)
+    const errorText = await response.text()
+    throw new Error(`Failed to find file: ${response.statusText} - ${errorText}`)
   }
   
   const data = await response.json()
-  return data.files?.[0] || null
+  
+  if (data.files && data.files.length > 0) {
+    if (data.files.length > 1) {
+      console.warn(`Multiple files found for '${name}':`, data.files.map((f: DriveFile) => ({ id: f.id, modified: f.modifiedTime })))
+    }
+    return data.files[0]
+  }
+  
+  return null
 }
 
 export async function createFolder(name: string, parentId?: string): Promise<DriveFile> {
@@ -57,7 +76,8 @@ export async function createFolder(name: string, parentId?: string): Promise<Dri
   })
   
   if (!response.ok) {
-    throw new Error(`Failed to create folder: ${response.statusText}`)
+    const errorText = await response.text()
+    throw new Error(`Failed to create folder: ${response.statusText} - ${errorText}`)
   }
   
   return response.json()
@@ -105,7 +125,8 @@ export async function createFile(name: string, content: string, parentId: string
   )
   
   if (!response.ok) {
-    throw new Error(`Failed to create file: ${response.statusText}`)
+    const errorText = await response.text()
+    throw new Error(`Failed to create file: ${response.statusText} - ${errorText}`)
   }
   
   return response.json()
@@ -127,7 +148,8 @@ export async function updateFile(fileId: string, content: string): Promise<void>
   )
   
   if (!response.ok) {
-    throw new Error(`Failed to update file: ${response.statusText}`)
+    const errorText = await response.text()
+    throw new Error(`Failed to update file: ${response.statusText} - ${errorText}`)
   }
 }
 
@@ -192,7 +214,8 @@ export async function uploadBlob(
   )
   
   if (!response.ok) {
-    throw new Error(`Failed to upload blob: ${response.statusText}`)
+    const errorText = await response.text()
+    throw new Error(`Failed to upload blob: ${response.statusText} - ${errorText}`)
   }
   
   return response.json()
@@ -214,4 +237,24 @@ export async function deleteFile(fileId: string): Promise<void> {
 export function getFileDownloadUrl(fileId: string): string {
   const token = googleAuth.getAccessToken()
   return `${API_BASE}/files/${fileId}?alt=media&access_token=${token}`
+}
+
+// Helper to list all duplicate folders/files (for cleanup)
+export async function listAllByName(name: string): Promise<DriveFile[]> {
+  const headers = await getHeaders()
+  
+  const escapedName = name.replace(/'/g, "\\'")
+  const query = `name='${escapedName}' and trashed=false`
+  
+  const response = await fetch(
+    `${API_BASE}/files?q=${encodeURIComponent(query)}&spaces=drive&fields=files(id,name,mimeType,modifiedTime,createdTime)`,
+    { headers }
+  )
+  
+  if (!response.ok) {
+    throw new Error(`Failed to list files: ${response.statusText}`)
+  }
+  
+  const data = await response.json()
+  return data.files || []
 }
