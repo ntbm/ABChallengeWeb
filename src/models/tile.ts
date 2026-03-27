@@ -1,3 +1,11 @@
+export const DEFAULT_FILLER_TEXT = 'ABC Challenge'
+
+export interface TilesData {
+  version: 2
+  tiles: Tile[]
+  fillerText: string
+}
+
 export interface Tile {
   id: string
   note: string

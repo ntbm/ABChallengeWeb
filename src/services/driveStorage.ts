@@ -1,4 +1,4 @@
-import { Tile, createInitialTiles } from '@/models/tile'
+import { TilesData, createInitialTiles, DEFAULT_FILLER_TEXT } from '@/models/tile'
 import * as driveApi from './driveApi'
 
 const APP_FOLDER_NAME = import.meta.env.VITE_APP_FOLDER_NAME || 'ABChallenge'
@@ -70,30 +70,45 @@ class DriveStorage {
     }
   }
 
-  async loadTiles(): Promise<Tile[]> {
+  async loadData(): Promise<TilesData> {
     await this.initialize()
 
     // If no tiles file exists, create one with initial data
     if (!this.tilesFileId) {
-      console.log('No tiles file found, creating initial tiles')
-      const initialTiles = createInitialTiles()
-      await this.saveTiles(initialTiles)
-      return initialTiles
+      console.log('No tiles file found, creating initial data')
+      const data: TilesData = {
+        version: 2,
+        tiles: createInitialTiles(),
+        fillerText: DEFAULT_FILLER_TEXT,
+      }
+      await this.saveData(data)
+      return data
     }
 
     try {
-      console.log('Loading tiles from file:', this.tilesFileId)
+      console.log('Loading data from file:', this.tilesFileId)
       const content = await driveApi.getFileContent(this.tilesFileId)
-      const tiles = JSON.parse(content) as Tile[]
-      
+      const parsed = JSON.parse(content)
+
+      // Migration: detect v1 (plain array) vs v2 (object with version)
+      let data: TilesData
+      let needsSave = false
+      if (Array.isArray(parsed)) {
+        console.log('Migrating v1 data format to v2')
+        data = { version: 2, tiles: parsed, fillerText: DEFAULT_FILLER_TEXT }
+        needsSave = true
+      } else {
+        data = parsed as TilesData
+      }
+
       // Ensure all A-Z tiles exist
-      const existingIds = new Set(tiles.map(t => t.id))
+      const existingIds = new Set(data.tiles.map(t => t.id))
       const missingIds = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))
         .filter(id => !existingIds.has(id))
-      
+
       if (missingIds.length > 0) {
         console.log('Adding missing tiles:', missingIds)
-        const newTiles = [...tiles, ...missingIds.map(id => ({
+        data.tiles = [...data.tiles, ...missingIds.map(id => ({
           id,
           note: '',
           dateEnabled: false,
@@ -101,24 +116,30 @@ class DriveStorage {
           thumbFileId: null,
           updatedAt: new Date().toISOString(),
         }))]
-        await this.saveTiles(newTiles)
-        return newTiles
+        needsSave = true
       }
-      
-      return tiles
+
+      if (needsSave) {
+        await this.saveData(data)
+      }
+
+      return data
     } catch (error) {
-      console.error('Failed to load tiles:', error)
-      // If loading fails, return initial tiles and try to save them
-      const initialTiles = createInitialTiles()
-      await this.saveTiles(initialTiles)
-      return initialTiles
+      console.error('Failed to load data:', error)
+      const data: TilesData = {
+        version: 2,
+        tiles: createInitialTiles(),
+        fillerText: DEFAULT_FILLER_TEXT,
+      }
+      await this.saveData(data)
+      return data
     }
   }
 
-  async saveTiles(tiles: Tile[]): Promise<void> {
+  async saveData(data: TilesData): Promise<void> {
     await this.initialize()
 
-    const content = JSON.stringify(tiles, null, 2)
+    const content = JSON.stringify(data, null, 2)
 
     if (this.tilesFileId) {
       console.log('Updating existing tiles file:', this.tilesFileId)

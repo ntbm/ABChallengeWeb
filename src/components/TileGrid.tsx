@@ -1,41 +1,76 @@
+import { useState, useRef, useEffect } from 'react'
 import { useTilesStore } from '@/state/tilesStore'
+import { DEFAULT_FILLER_TEXT } from '@/models/tile'
 import { TileCard } from './TileCard'
+
+function FillerTile() {
+  const { fillerText, setFillerText } = useTilesStore()
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.select()
+    }
+  }, [isEditing])
+
+  const handleSave = () => {
+    const trimmed = editValue.trim()
+    setFillerText(trimmed || DEFAULT_FILLER_TEXT)
+    setIsEditing(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSave()
+    if (e.key === 'Escape') setIsEditing(false)
+  }
+
+  return (
+    <div
+      className="col-span-2 sm:col-span-4 rounded-[14px] flex items-center justify-center cursor-pointer"
+      style={{ border: '1.5px dashed rgba(255,255,255,0.06)' }}
+      onClick={() => {
+        if (!isEditing) {
+          setEditValue(fillerText)
+          setIsEditing(true)
+        }
+      }}
+    >
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          value={editValue}
+          onChange={e => setEditValue(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={handleKeyDown}
+          maxLength={30}
+          className="bg-transparent text-center outline-none border-none text-white/40 text-[0.5rem] sm:text-[0.65rem] lg:text-xs font-bold tracking-[0.15em] uppercase w-full px-2"
+        />
+      ) : (
+        <span
+          className="text-[0.5rem] sm:text-[0.65rem] lg:text-xs font-bold tracking-[0.15em] uppercase"
+          style={{
+            background: 'linear-gradient(135deg, rgba(167,139,250,0.4), rgba(96,165,250,0.4), rgba(52,211,153,0.4))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          {fillerText}
+        </span>
+      )}
+    </div>
+  )
+}
 
 export function TileGrid() {
   const { tiles, isLoading } = useTilesStore()
 
-  // 4 cols (mobile): 7 rows × 4 = 28 cells. 26 tiles + filler(span 2) in row 4 = 28 ✓
-  //   Rows: [ABCD] [EFGH] [IJKL] [M ~~filler~~ N] [OPQR] [STUV] [WXYZ]
-  //   Split: 12 tiles, filler, 2 tiles(M,N) around filler, 14 tiles after
-  //   Actually: first 12 (A-L), then M, filler(2), N, then 12 (O-Z)
-  //
-  // 6 cols (sm+): 5 rows × 6 = 30 cells. 26 tiles + filler(span 4) in row 3 = 30 ✓
-  //   Rows: [ABCDEF] [GHIJKL] [M ~~filler~~ N] [OPQRST] [UVWXYZ]
-  //   Split: first 12 (A-L), then M, filler(4), N, then 12 (O-Z)
-  //
-  // Both layouts: 12 tiles, M, filler, N, 12 tiles — same structure!
-
   const gridClass = "grid grid-cols-4 sm:grid-cols-6 grid-rows-7 sm:grid-rows-5 gap-1 sm:gap-1.5 h-full"
 
-  const fillerEl = (
-    <div
-      key="filler"
-      className="col-span-2 sm:col-span-4 rounded-[14px] flex items-center justify-center"
-      style={{ border: '1.5px dashed rgba(255,255,255,0.06)' }}
-    >
-      <span
-        className="text-[0.5rem] sm:text-[0.65rem] lg:text-xs font-bold tracking-[0.15em] uppercase"
-        style={{
-          background: 'linear-gradient(135deg, rgba(167,139,250,0.4), rgba(96,165,250,0.4), rgba(52,211,153,0.4))',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}
-      >
-        ABC Challenge
-      </span>
-    </div>
-  )
+  const fillerEl = <FillerTile key="filler" />
 
   if (isLoading || tiles.length < 26) {
     return (
