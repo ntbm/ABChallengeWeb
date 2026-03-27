@@ -58,6 +58,40 @@
   }
 
   /* Tile states — colors driven by CSS custom properties */
+  /* State-accent left border for form cards */
+  .card-accent-done {
+    border-left: 3px solid var(--theme-done);
+  }
+  .card-accent-planned {
+    border-left: 3px solid var(--theme-g2);
+  }
+  .card-accent-idea {
+    border-left: 3px solid var(--theme-idea);
+  }
+
+  /* State badge pill */
+  .state-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+  }
+  .state-badge-done {
+    background: rgba(var(--theme-done-rgb), 0.15);
+    color: var(--theme-done);
+    border: 1px solid rgba(var(--theme-done-rgb), 0.3);
+  }
+  .state-badge-planned {
+    background: rgba(var(--theme-g2-rgb), 0.15);
+    color: var(--theme-g2);
+    border: 1px solid rgba(var(--theme-g2-rgb), 0.3);
+  }
+  .state-badge-idea {
+    background: rgba(var(--theme-idea-rgb), 0.15);
+    color: var(--theme-idea);
+    border: 1px solid rgba(var(--theme-idea-rgb), 0.3);
+  }
+  .state-badge-incomplete {
+    @apply bg-white/5 text-white/40 border border-white/10;
+  }
+
   .tile-incomplete {
     background: rgba(255,255,255,0.04);
     border: 1.5px solid rgba(255,255,255,0.08);

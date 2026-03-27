@@ -50,7 +50,17 @@
     "dropHere": "Drop image here",
     "saving": "Saving...",
     "saved": "Saved",
-    "saveError": "Error saving"
+    "saveError": "Error saving",
+    "stateDone": "Done",
+    "statePlanned": "Planned",
+    "stateIdea": "Idea",
+    "stateIncomplete": "Incomplete",
+    "hintIncomplete": "Add a note, set a date, or upload an image",
+    "hintIdea": "Set a date to plan it, or upload an image to complete it",
+    "hintPlanned": "Upload an image to mark as done",
+    "hintDone": "Complete! Remove the image to change status",
+    "setDate": "Set a date",
+    "clearDate": "Clear date"
   },
   "offline": {
     "banner": "Offline - Changes are stored locally",

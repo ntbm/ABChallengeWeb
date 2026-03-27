@@ -14,18 +14,18 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
   const { url, loading: thumbLoading } = useThumbnail(tile.thumbFileId)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropZoneRef = useRef<HTMLDivElement>(null)
-  
+
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
 
   const displayUrl = previewUrl || url
+  const hasImage = !!tile.thumbFileId || !!previewUrl
 
   const processFile = useCallback(async (file: File) => {
     console.log('Processing file:', file.name, 'Type:', file.type, 'Size:', file.size)
-    
-    // Check for HEIC files early with better error message
+
     if (isHeicFile(file)) {
       setError(
         'HEIC/HEIF images are not supported by web browsers. ' +
@@ -34,7 +34,6 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
       return
     }
 
-    // Validate file
     const validation = validateImageFile(file)
     if (!validation.valid) {
       setError(validation.error || 'Invalid file')
@@ -45,17 +44,10 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
     setIsUploading(true)
 
     try {
-      // Create thumbnail
       const thumbnailBlob = await createThumbnail(file)
-      
-      // Show preview immediately
       const objectUrl = URL.createObjectURL(thumbnailBlob)
       setPreviewUrl(objectUrl)
-      
-      // Upload to Drive
       await uploadThumbnail(tile.id, thumbnailBlob)
-      
-      // Clear preview after successful upload
       setPreviewUrl(null)
       URL.revokeObjectURL(objectUrl)
     } catch (err) {
@@ -64,7 +56,6 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
       setPreviewUrl(null)
     } finally {
       setIsUploading(false)
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
@@ -86,7 +77,6 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    // Only set isDragging to false if we're leaving the dropzone (not entering a child)
     if (e.currentTarget === dropZoneRef.current) {
       setIsDragging(false)
     }
@@ -104,15 +94,14 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
 
     const files = e.dataTransfer.files
     if (files.length > 0) {
-      const file = files[0]
-      processFile(file)
+      processFile(files[0])
     }
   }, [processFile])
 
   const handleRemove = useCallback(async () => {
     setIsUploading(true)
     setError(null)
-    
+
     try {
       await removeThumbnail(tile.id, tile.thumbFileId)
     } catch (err) {
@@ -127,144 +116,116 @@ export function ImageUploader({ tile }: ImageUploaderProps) {
   }
 
   return (
-    <div className="card p-4 space-y-4">
-      <h3 className="font-semibold text-gray-800 border-b border-gray-200 pb-2">
+    <div className={`card p-4 space-y-4 ${hasImage ? 'card-accent-done' : ''}`}>
+      <h3 className="font-semibold text-white/90">
         {t('tileDetail.imageSection')}
       </h3>
 
       {/* Image Preview / Dropzone */}
-      <div
-        ref={dropZoneRef}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        className={`relative aspect-video rounded-lg overflow-hidden flex items-center justify-center transition-colors ${
-          isDragging
-            ? 'bg-blue-100 border-2 border-blue-400 border-dashed'
-            : displayUrl
-            ? 'bg-gray-100'
-            : 'bg-gray-100 border-2 border-gray-300 border-dashed hover:border-gray-400'
-        }`}
-      >
-        {displayUrl ? (
-          <>
-            <img
-              src={displayUrl}
-              alt={`${tile.id} thumbnail`}
-              className="w-full h-full object-contain"
-            />
-            {/* Drag overlay when image exists */}
-            {isDragging && (
-              <div className="absolute inset-0 bg-blue-500/80 flex items-center justify-center">
-                <div className="text-white text-center">
-                  <svg className="h-12 w-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  <p className="font-medium">{t('tileDetail.dropHere')}</p>
-                </div>
-              </div>
-            )}
-          </>
-        ) : thumbLoading ? (
-          <div className="text-gray-400 text-center">
-            <svg className="animate-spin h-10 w-10 mx-auto mb-2" viewBox="0 0 24 24">
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="none"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-            <p className="text-sm">{t('app.loading')}</p>
-          </div>
-        ) : (
-          <div className="text-gray-400 text-center p-6">
-            {isDragging ? (
-              <div className="text-blue-500">
-                <svg className="h-12 w-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      {displayUrl ? (
+        /* When image exists: show preview with aspect ratio */
+        <div
+          ref={dropZoneRef}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          className="relative aspect-video rounded-lg overflow-hidden bg-white/5"
+        >
+          <img
+            src={displayUrl}
+            alt={`${tile.id} thumbnail`}
+            className="w-full h-full object-contain"
+          />
+          {isDragging && (
+            <div className="absolute inset-0 bg-blue-500/80 flex items-center justify-center">
+              <div className="text-white text-center">
+                <svg className="h-10 w-10 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <p className="font-medium">{t('tileDetail.dropHere')}</p>
+                <p className="text-sm font-medium">{t('tileDetail.dropHere')}</p>
               </div>
-            ) : (
-              <>
-                <svg className="h-12 w-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className="text-sm mb-1">{t('tileDetail.noImage')}</p>
-                <p className="text-xs text-gray-400">{t('tileDetail.dragOrClick')}</p>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 text-sm whitespace-pre-wrap">{error}</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* When no image: compact inline row instead of large dropzone */
+        <div
+          ref={dropZoneRef}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onClick={handleButtonClick}
+          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+            isDragging
+              ? 'bg-blue-500/10 border border-blue-400/50 border-dashed'
+              : 'bg-white/5 border border-white/10 hover:border-white/20'
+          }`}
+        >
+          {thumbLoading ? (
+            <svg className="animate-spin h-5 w-5 text-white/40" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5 text-white/30 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          )}
+          <span className="text-sm text-white/40">
+            {isDragging ? t('tileDetail.dropHere') : t('tileDetail.dragOrClick')}
+          </span>
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex gap-3">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
-        
-        <button
-          onClick={handleButtonClick}
-          disabled={isUploading}
-          className="btn btn-primary flex-1 disabled:opacity-50"
-        >
-          {isUploading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              {t('app.loading')}
-            </span>
-          ) : (
-            t('tileDetail.selectImage')
-          )}
-        </button>
-        
-        {tile.thumbFileId && (
+      {/* Error Message */}
+      {error && (
+        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <p className="text-red-400 text-sm whitespace-pre-wrap">{error}</p>
+        </div>
+      )}
+
+      {/* Action Buttons — only shown when image exists */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
+      {(tile.thumbFileId || isUploading) && (
+        <div className="flex gap-3">
           <button
-            onClick={handleRemove}
+            onClick={handleButtonClick}
             disabled={isUploading}
-            className="btn btn-danger disabled:opacity-50"
+            className="btn btn-secondary flex-1 disabled:opacity-50"
           >
-            {t('tileDetail.removeImage')}
+            {isUploading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                {t('app.loading')}
+              </span>
+            ) : (
+              t('tileDetail.selectImage')
+            )}
           </button>
-        )}
-      </div>
+
+          {tile.thumbFileId && (
+            <button
+              onClick={handleRemove}
+              disabled={isUploading}
+              className="btn btn-secondary text-red-400 hover:text-red-300 disabled:opacity-50"
+            >
+              {t('tileDetail.removeImage')}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

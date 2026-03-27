@@ -2,6 +2,7 @@ import { memo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Tile } from '@/models/tile'
 import { useThumbnail } from '@/services/thumbCache'
+import { getTileState } from '@/utils/tileState'
 
 interface TileCardProps {
   tile: Tile
@@ -13,9 +14,10 @@ export const TileCard = memo(function TileCard({ tile, index }: TileCardProps) {
   const { url } = useThumbnail(tile.thumbFileId)
   const [imgLoaded, setImgLoaded] = useState(false)
 
-  const isDone = !!tile.thumbFileId
-  const isPlanned = !isDone && !!(tile.dateEnabled && tile.date)
-  const hasIdea = !isDone && !isPlanned && !!(tile.note && tile.note.trim().length > 0)
+  const state = getTileState(tile)
+  const isDone = state === 'done'
+  const isPlanned = state === 'planned'
+  const hasIdea = state === 'idea'
 
   const handleClick = () => {
     navigate(`/tiles/${tile.id}`)

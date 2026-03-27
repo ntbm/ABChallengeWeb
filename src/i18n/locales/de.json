@@ -50,7 +50,17 @@
     "dropHere": "Bild hier ablegen",
     "saving": "Speichert...",
     "saved": "Gespeichert",
-    "saveError": "Fehler beim Speichern"
+    "saveError": "Fehler beim Speichern",
+    "stateDone": "Erledigt",
+    "statePlanned": "Geplant",
+    "stateIdea": "Idee",
+    "stateIncomplete": "Offen",
+    "hintIncomplete": "Füge eine Notiz hinzu, setze ein Datum oder lade ein Bild hoch",
+    "hintIdea": "Setze ein Datum zum Planen oder lade ein Bild hoch",
+    "hintPlanned": "Lade ein Bild hoch um es abzuschließen",
+    "hintDone": "Erledigt! Entferne das Bild um den Status zu ändern",
+    "setDate": "Datum setzen",
+    "clearDate": "Datum entfernen"
   },
   "offline": {
     "banner": "Offline - Änderungen werden lokal zwischengespeichert",
