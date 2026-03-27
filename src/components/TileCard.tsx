@@ -59,14 +59,17 @@ export const TileCard = memo(function TileCard({ tile, index }: TileCardProps) {
         className={`
           relative z-10 font-black leading-none select-none
           ${url && imgLoaded ? 'text-white drop-shadow-lg' : ''}
-          ${isDone && !(url && imgLoaded) ? 'text-emerald-400' : ''}
-          ${hasIdea && !(url && imgLoaded) ? 'text-amber-400' : ''}
           ${!isDone && !hasIdea ? 'text-white/[0.15]' : ''}
         `}
         style={{
           fontSize: 'clamp(1.3rem, 5.5vw, 3rem)',
-          textShadow: isDone ? '0 0 24px rgba(52,211,153,0.4)' :
-                      hasIdea ? '0 0 20px rgba(251,191,36,0.3)' : 'none',
+          ...(!url || !imgLoaded ? {
+            color: isDone ? 'var(--theme-done)' : hasIdea ? 'var(--theme-idea)' : undefined,
+            textShadow: isDone ? '0 0 24px rgba(var(--theme-done-rgb),0.4)' :
+                        hasIdea ? '0 0 20px rgba(var(--theme-idea-rgb),0.3)' : 'none',
+          } : {
+            textShadow: 'none',
+          }),
         }}
       >
         {tile.id}
@@ -77,8 +80,8 @@ export const TileCard = memo(function TileCard({ tile, index }: TileCardProps) {
         <div
           className="absolute bottom-1.5 right-1.5 w-3.5 h-3.5 rounded-full flex items-center justify-center"
           style={{
-            background: 'linear-gradient(135deg, #34d399, #60a5fa)',
-            boxShadow: '0 0 8px rgba(52,211,153,0.4)',
+            background: `linear-gradient(135deg, var(--theme-done), var(--theme-g2))`,
+            boxShadow: '0 0 8px rgba(var(--theme-done-rgb),0.4)',
           }}
         >
           <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -87,7 +90,7 @@ export const TileCard = memo(function TileCard({ tile, index }: TileCardProps) {
         </div>
       )}
       {hasIdea && (
-        <span className="absolute bottom-1 right-1 text-[10px] leading-none" style={{ filter: 'drop-shadow(0 0 4px rgba(251,191,36,0.5))' }}>💡</span>
+        <span className="absolute bottom-1 right-1 text-[10px] leading-none" style={{ filter: `drop-shadow(0 0 4px rgba(var(--theme-idea-rgb),0.5))` }}>💡</span>
       )}
     </button>
   )

@@ -52,7 +52,7 @@ function FillerTile() {
         <span
           className="text-[0.5rem] sm:text-[0.65rem] lg:text-xs font-bold tracking-[0.15em] uppercase"
           style={{
-            background: 'linear-gradient(135deg, rgba(167,139,250,0.4), rgba(96,165,250,0.4), rgba(52,211,153,0.4))',
+            background: 'linear-gradient(135deg, rgba(var(--theme-g1-rgb),0.4), rgba(var(--theme-g2-rgb),0.4), rgba(var(--theme-g3-rgb),0.4))',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',

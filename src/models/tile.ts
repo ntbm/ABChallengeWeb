@@ -4,6 +4,7 @@ export interface TilesData {
   version: 2
   tiles: Tile[]
   fillerText: string
+  theme?: string
 }
 
 export interface Tile {

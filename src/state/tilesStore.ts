@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { Tile, DEFAULT_FILLER_TEXT, updateTile } from '@/models/tile'
+import { ThemeId, DEFAULT_THEME, applyTheme } from '@/models/theme'
 import { driveStorage } from '@/services/driveStorage'
 import { debounce } from '@/utils/debounce'
 import { offlineQueue } from '@/services/offlineQueue'
@@ -9,6 +10,7 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 interface TilesState {
   tiles: Tile[]
   fillerText: string
+  theme: ThemeId
   isLoading: boolean
   isInitialized: boolean
   saveStatus: SaveStatus
@@ -21,6 +23,7 @@ interface TilesState {
   loadTiles: () => Promise<void>
   updateTile: (tileUpdate: Partial<Tile> & { id: string }) => void
   setFillerText: (text: string) => void
+  setTheme: (theme: ThemeId) => void
   saveTiles: () => Promise<void>
   getTileById: (id: string) => Tile | undefined
   clearError: () => void
@@ -31,12 +34,12 @@ const DEBOUNCE_DELAY = 800
 export const useTilesStore = create<TilesState>((set, get) => {
   // Debounced save function
   const debouncedSave = debounce(async () => {
-    const { tiles, fillerText } = get()
+    const { tiles, fillerText, theme } = get()
 
     set({ saveStatus: 'saving' })
 
     try {
-      await driveStorage.saveData({ version: 2, tiles, fillerText })
+      await driveStorage.saveData({ version: 2, tiles, fillerText, theme })
       set({ saveStatus: 'saved', offline: false, pendingChanges: false })
       offlineQueue.clear()
 
@@ -48,7 +51,7 @@ export const useTilesStore = create<TilesState>((set, get) => {
       console.error('Failed to save tiles:', error)
 
       // Store for offline sync
-      offlineQueue.enqueue(tiles, fillerText)
+      offlineQueue.enqueue(tiles, fillerText, theme)
 
       set({
         saveStatus: 'error',
@@ -62,6 +65,7 @@ export const useTilesStore = create<TilesState>((set, get) => {
   return {
     tiles: [],
     fillerText: DEFAULT_FILLER_TEXT,
+    theme: DEFAULT_THEME,
     isLoading: false,
     isInitialized: false,
     saveStatus: 'idle',
@@ -75,6 +79,8 @@ export const useTilesStore = create<TilesState>((set, get) => {
       try {
         await driveStorage.initialize()
         const data = await driveStorage.loadData()
+        const theme = (data.theme as ThemeId) || DEFAULT_THEME
+        applyTheme(theme)
 
         // Check for pending offline changes
         const pending = offlineQueue.getPending()
@@ -82,12 +88,13 @@ export const useTilesStore = create<TilesState>((set, get) => {
           set({
             tiles: data.tiles,
             fillerText: data.fillerText,
+            theme,
             isLoading: false,
             isInitialized: true,
             pendingChanges: true
           })
         } else {
-          set({ tiles: data.tiles, fillerText: data.fillerText, isLoading: false, isInitialized: true })
+          set({ tiles: data.tiles, fillerText: data.fillerText, theme, isLoading: false, isInitialized: true })
         }
       } catch (error) {
         console.error('Failed to initialize tiles:', error)
@@ -95,9 +102,12 @@ export const useTilesStore = create<TilesState>((set, get) => {
         // Try to load from offline queue
         const pending = offlineQueue.getPending()
         if (pending) {
+          const theme = (pending.theme as ThemeId) || DEFAULT_THEME
+          applyTheme(theme)
           set({
             tiles: pending.tiles,
             fillerText: pending.fillerText,
+            theme,
             isLoading: false,
             isInitialized: true,
             offline: true,
@@ -117,7 +127,9 @@ export const useTilesStore = create<TilesState>((set, get) => {
 
       try {
         const data = await driveStorage.loadData()
-        set({ tiles: data.tiles, fillerText: data.fillerText, isLoading: false })
+        const theme = (data.theme as ThemeId) || DEFAULT_THEME
+        applyTheme(theme)
+        set({ tiles: data.tiles, fillerText: data.fillerText, theme, isLoading: false })
       } catch (error) {
         set({
           isLoading: false,
@@ -131,8 +143,6 @@ export const useTilesStore = create<TilesState>((set, get) => {
       const updatedTiles = updateTile(tiles, tileUpdate)
 
       set({ tiles: updatedTiles, saveStatus: 'saving' })
-
-      // Trigger debounced save
       debouncedSave()
     },
 
@@ -141,17 +151,23 @@ export const useTilesStore = create<TilesState>((set, get) => {
       debouncedSave()
     },
 
+    setTheme: (newTheme: ThemeId) => {
+      applyTheme(newTheme)
+      set({ theme: newTheme, saveStatus: 'saving' })
+      debouncedSave()
+    },
+
     saveTiles: async () => {
-      const { tiles, fillerText } = get()
+      const { tiles, fillerText, theme } = get()
 
       set({ saveStatus: 'saving' })
 
       try {
-        await driveStorage.saveData({ version: 2, tiles, fillerText })
+        await driveStorage.saveData({ version: 2, tiles, fillerText, theme })
         set({ saveStatus: 'saved', offline: false, pendingChanges: false })
         offlineQueue.clear()
       } catch (error) {
-        offlineQueue.enqueue(tiles, fillerText)
+        offlineQueue.enqueue(tiles, fillerText, theme)
         set({
           saveStatus: 'error',
           offline: true,

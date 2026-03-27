@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/state/authStore'
 import { LanguageToggle } from './LanguageToggle'
+import { ThemePicker } from './ThemePicker'
 
 export function AppHeader() {
   const { t } = useTranslation()
@@ -11,7 +12,7 @@ export function AppHeader() {
       <h1
         className="text-lg font-black tracking-wider uppercase"
         style={{
-          background: 'linear-gradient(135deg, #a78bfa, #60a5fa, #34d399)',
+          background: 'linear-gradient(135deg, var(--theme-g1), var(--theme-g2), var(--theme-g3))',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
@@ -20,7 +21,8 @@ export function AppHeader() {
         {t('app.title')}
       </h1>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        <ThemePicker />
         <LanguageToggle />
         <button
           onClick={signOut}

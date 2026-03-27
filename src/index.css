@@ -5,7 +5,20 @@
 @layer base {
   body {
     @apply text-white min-h-screen font-display;
+    /* Default background — overridden by applyTheme() at runtime */
     background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 40%, #172554 100%);
+
+    /* Default theme variables (aurora) — overridden by applyTheme() */
+    --theme-g1: #a78bfa;
+    --theme-g2: #60a5fa;
+    --theme-g3: #34d399;
+    --theme-done: #34d399;
+    --theme-done-rgb: 52, 211, 153;
+    --theme-idea: #fbbf24;
+    --theme-idea-rgb: 251, 191, 36;
+    --theme-g1-rgb: 167, 139, 250;
+    --theme-g2-rgb: 96, 165, 250;
+    --theme-g3-rgb: 52, 211, 153;
   }
 
   /* Subtle grain texture overlay */
@@ -44,7 +57,7 @@
     @apply bg-white/5 rounded-xl shadow-sm border border-white/10 backdrop-blur-sm;
   }
 
-  /* Tile states */
+  /* Tile states — colors driven by CSS custom properties */
   .tile-incomplete {
     background: rgba(255,255,255,0.04);
     border: 1.5px solid rgba(255,255,255,0.08);
@@ -52,16 +65,16 @@
   }
 
   .tile-idea {
-    background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.08));
-    border: 1.5px solid rgba(251,191,36,0.25);
-    box-shadow: 0 0 20px rgba(251,191,36,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+    background: linear-gradient(135deg, rgba(var(--theme-idea-rgb),0.12), rgba(var(--theme-idea-rgb),0.06));
+    border: 1.5px solid rgba(var(--theme-idea-rgb),0.25);
+    box-shadow: 0 0 20px rgba(var(--theme-idea-rgb),0.08), inset 0 1px 0 rgba(255,255,255,0.05);
     @apply rounded-[14px];
   }
 
   .tile-complete {
-    background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(96,165,250,0.1));
-    border: 1.5px solid rgba(52,211,153,0.3);
-    box-shadow: 0 0 24px rgba(52,211,153,0.12), inset 0 1px 0 rgba(255,255,255,0.08);
+    background: linear-gradient(135deg, rgba(var(--theme-done-rgb),0.15), rgba(var(--theme-g2-rgb),0.1));
+    border: 1.5px solid rgba(var(--theme-done-rgb),0.3);
+    box-shadow: 0 0 24px rgba(var(--theme-done-rgb),0.12), inset 0 1px 0 rgba(255,255,255,0.08);
     @apply rounded-[14px];
   }
 }

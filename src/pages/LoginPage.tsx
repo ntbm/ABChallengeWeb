@@ -22,7 +22,7 @@ export default function LoginPage() {
         <span
           className="text-sm font-bold tracking-wider uppercase"
           style={{
-            background: 'linear-gradient(135deg, rgba(167,139,250,0.7), rgba(96,165,250,0.7), rgba(52,211,153,0.7))',
+            background: 'linear-gradient(135deg, rgba(var(--theme-g1-rgb),0.7), rgba(var(--theme-g2-rgb),0.7), rgba(var(--theme-g3-rgb),0.7))',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -39,7 +39,7 @@ export default function LoginPage() {
           <h1
             className="text-3xl sm:text-4xl font-black tracking-tight mb-3"
             style={{
-              background: 'linear-gradient(135deg, #a78bfa, #60a5fa, #34d399)',
+              background: 'linear-gradient(135deg, var(--theme-g1), var(--theme-g2), var(--theme-g3))',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -78,8 +78,8 @@ export default function LoginPage() {
           </div>
 
           {/* Privacy */}
-          <div className="rounded-xl bg-emerald-500/[0.04] border border-emerald-400/[0.1] p-5">
-            <h2 className="text-sm font-bold text-emerald-400/70 uppercase tracking-wider mb-2 flex items-center gap-2">
+          <div className="rounded-xl p-5" style={{ background: 'rgba(var(--theme-done-rgb),0.04)', border: '1px solid rgba(var(--theme-done-rgb),0.1)' }}>
+            <h2 className="text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2" style={{ color: 'rgba(var(--theme-done-rgb),0.7)' }}>
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -106,8 +106,8 @@ export default function LoginPage() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              background: 'linear-gradient(135deg, rgba(167,139,250,0.25), rgba(96,165,250,0.25), rgba(52,211,153,0.25))',
-              border: '1.5px solid rgba(167,139,250,0.2)',
+              background: 'linear-gradient(135deg, rgba(var(--theme-g1-rgb),0.25), rgba(var(--theme-g2-rgb),0.25), rgba(var(--theme-g3-rgb),0.25))',
+              border: '1.5px solid rgba(var(--theme-g1-rgb),0.2)',
             }}
           >
             {isLoading ? (

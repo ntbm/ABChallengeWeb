@@ -30,8 +30,8 @@ export default function TilesPage() {
               className="h-full rounded-full transition-all duration-500"
               style={{
                 width: `${(completedCount / 26) * 100}%`,
-                background: 'linear-gradient(90deg, #a78bfa, #60a5fa, #34d399)',
-                boxShadow: '0 0 12px rgba(96,165,250,0.4)',
+                background: 'linear-gradient(90deg, var(--theme-g1), var(--theme-g2), var(--theme-g3))',
+                boxShadow: '0 0 12px rgba(var(--theme-g2-rgb),0.4)',
               }}
             />
           </div>
@@ -45,7 +45,7 @@ export default function TilesPage() {
             </svg>
           )}
           {saveStatus === 'saved' && (
-            <svg className="h-3.5 w-3.5 text-emerald-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-3.5 w-3.5" style={{ color: 'var(--theme-done)', opacity: 0.6 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           )}

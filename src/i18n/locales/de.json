@@ -57,6 +57,12 @@
     "pendingSync": "Ausstehende Synchronisation",
     "syncError": "Synchronisation fehlgeschlagen"
   },
+  "theme": {
+    "aurora": "Aurora",
+    "sunset": "Sonnenuntergang",
+    "ocean": "Ozean",
+    "blossom": "Blüte"
+  },
   "language": {
     "switchTo": "Sprache wechseln",
     "de": "Deutsch",
