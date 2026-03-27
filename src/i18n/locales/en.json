@@ -17,6 +17,18 @@
     "loginError": "Sign in failed. Please try again.",
     "sessionExpired": "Session expired. Please sign in again."
   },
+  "landing": {
+    "headline": "Your alphabet of experiences",
+    "subline": "26 letters. 26 adventures. One challenge.",
+    "whatIsIt": "What is an ABC Challenge?",
+    "whatIsItText": "An ABC Challenge is a personal bucket list from A to Z. For each letter of the alphabet, you pick an activity that starts with that letter — and then actually do it. A date with yourself, something you've never tried before, or an adventure you've always dreamed of.",
+    "examples": "A like Archery, B like Bouldering, C like Cooking class — anything goes, as long as it starts with the right letter.",
+    "whyTitle": "Why track it here?",
+    "whyText": "This app gives you a beautiful overview of all 26 letters on a single screen. Add notes, set dates, upload photos — and watch your alphabet fill up step by step.",
+    "privacyTitle": "Your data stays yours",
+    "privacyText": "All your data is stored exclusively in your own Google Drive — nowhere else. We have no server, no database, no access to your information. When you sign in with Google, the app only gets permission to manage its own files in your Drive. Nobody else can see your data.",
+    "ctaSubtext": "Sign in to store your progress in your Google Drive."
+  },
   "tiles": {
     "title": "My Tiles",
     "emptyNote": "No note",

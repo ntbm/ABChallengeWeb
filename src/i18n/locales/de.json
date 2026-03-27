@@ -17,6 +17,18 @@
     "loginError": "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
     "sessionExpired": "Sitzung abgelaufen. Bitte melde dich erneut an."
   },
+  "landing": {
+    "headline": "Dein Alphabet voller Erlebnisse",
+    "subline": "26 Buchstaben. 26 Abenteuer. Eine Challenge.",
+    "whatIsIt": "Was ist eine ABC Challenge?",
+    "whatIsItText": "Eine ABC Challenge ist eine persönliche Bucket List von A bis Z. Für jeden Buchstaben des Alphabets suchst du dir eine Aktivität aus, die mit diesem Buchstaben beginnt — und setzt sie dann auch wirklich um. Ein Date mit dir selbst, etwas, das du noch nie gemacht hast, oder ein Abenteuer, von dem du schon immer geträumt hast.",
+    "examples": "A wie Angeln, B wie Bouldern, C wie Cocktailkurs — alles ist erlaubt, Hauptsache es beginnt mit dem richtigen Buchstaben.",
+    "whyTitle": "Warum hier tracken?",
+    "whyText": "Diese App zeigt dir alle 26 Buchstaben auf einen Blick. Füge Notizen hinzu, setze Termine, lade Fotos hoch — und beobachte, wie sich dein Alphabet Schritt für Schritt füllt.",
+    "privacyTitle": "Deine Daten bleiben bei dir",
+    "privacyText": "Alle deine Daten werden ausschließlich in deinem eigenen Google Drive gespeichert — nirgendwo sonst. Wir haben keinen Server, keine Datenbank, keinen Zugriff auf deine Informationen. Beim Anmelden mit Google bekommt die App nur die Berechtigung, ihre eigenen Dateien in deinem Drive zu verwalten. Niemand außer dir kann deine Daten sehen.",
+    "ctaSubtext": "Melde dich an, um deinen Fortschritt in deinem Google Drive zu speichern."
+  },
   "tiles": {
     "title": "Meine Tiles",
     "emptyNote": "Keine Notiz",
