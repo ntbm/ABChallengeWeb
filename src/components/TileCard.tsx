@@ -1,17 +1,24 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Tile } from '@/models/tile'
 import { useThumbnail } from '@/services/thumbCache'
-import { StatusBadge } from './StatusBadge'
 
 interface TileCardProps {
   tile: Tile
+  index: number
 }
 
-export const TileCard = memo(function TileCard({ tile }: TileCardProps) {
+export const TileCard = memo(function TileCard({ tile, index }: TileCardProps) {
   const navigate = useNavigate()
-  const { url, loading } = useThumbnail(tile.thumbFileId)
-  
+  const { url } = useThumbnail(tile.thumbFileId)
+  const [imgLoaded, setImgLoaded] = useState(false)
+
+  const isDone = !!(tile.dateEnabled && tile.date)
+  const hasIdea = !isDone && !!(
+    tile.thumbFileId ||
+    (tile.note && tile.note.trim().length > 0)
+  )
+
   const handleClick = () => {
     navigate(`/tiles/${tile.id}`)
   }
@@ -19,60 +26,68 @@ export const TileCard = memo(function TileCard({ tile }: TileCardProps) {
   return (
     <button
       onClick={handleClick}
-      className="card aspect-square flex flex-col items-center justify-center p-4 hover:shadow-md transition-shadow relative overflow-hidden"
+      className={`
+        w-full h-full relative overflow-hidden flex items-center justify-center
+        transition-all duration-200 active:scale-[0.93] animate-tile-in
+        ${isDone ? 'tile-complete' : hasIdea ? 'tile-idea' : 'tile-incomplete'}
+      `}
+      style={{
+        animationDelay: `${index * 25}ms`,
+      }}
       aria-label={`Tile ${tile.id}`}
     >
-      {/* Thumbnail or Letter */}
-      {url ? (
+      {/* Thumbnail background */}
+      {url && (
         <img
           src={url}
-          alt={`${tile.id} thumbnail`}
+          alt=""
           loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover"
+          onLoad={() => setImgLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+            imgLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
         />
-      ) : loading ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <svg className="animate-spin h-8 w-8 text-gray-400" viewBox="0 0 24 24">
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="none"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
+      )}
+
+      {/* Dark overlay for readability on images */}
+      {url && imgLoaded && (
+        <div className="absolute inset-0 bg-black/40" />
+      )}
+
+      {/* The Letter — hero element */}
+      <span
+        className={`
+          relative z-10 font-black leading-none select-none
+          ${url && imgLoaded ? 'text-white drop-shadow-lg' : ''}
+          ${isDone && !(url && imgLoaded) ? 'text-emerald-400' : ''}
+          ${hasIdea && !(url && imgLoaded) ? 'text-amber-400' : ''}
+          ${!isDone && !hasIdea ? 'text-white/[0.15]' : ''}
+        `}
+        style={{
+          fontSize: 'clamp(1.3rem, 5.5vw, 3rem)',
+          textShadow: isDone ? '0 0 24px rgba(52,211,153,0.4)' :
+                      hasIdea ? '0 0 20px rgba(251,191,36,0.3)' : 'none',
+        }}
+      >
+        {tile.id}
+      </span>
+
+      {/* Status indicator */}
+      {isDone && (
+        <div
+          className="absolute bottom-1.5 right-1.5 w-3.5 h-3.5 rounded-full flex items-center justify-center"
+          style={{
+            background: 'linear-gradient(135deg, #34d399, #60a5fa)',
+            boxShadow: '0 0 8px rgba(52,211,153,0.4)',
+          }}
+        >
+          <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-      ) : (
-        <span className="text-5xl font-bold text-gray-300">{tile.id}</span>
       )}
-      
-      {/* Status Badges */}
-      <div className="absolute top-2 right-2 flex gap-1">
-        {tile.dateEnabled && tile.date && (
-          <StatusBadge type="date" active={true} />
-        )}
-        {tile.note && tile.note.trim().length > 0 && (
-          <StatusBadge type="note" active={true} />
-        )}
-      </div>
-      
-      {/* Overlay for readability if image exists */}
-      {url && (
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-      )}
-      
-      {/* Letter overlay when image exists */}
-      {url && (
-        <span className="absolute bottom-2 left-2 text-2xl font-bold text-white drop-shadow-lg">
-          {tile.id}
-        </span>
+      {hasIdea && (
+        <span className="absolute bottom-1 right-1 text-[10px] leading-none" style={{ filter: 'drop-shadow(0 0 4px rgba(251,191,36,0.5))' }}>💡</span>
       )}
     </button>
   )

@@ -4,7 +4,18 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 min-h-screen;
+    @apply text-white min-h-screen font-display;
+    background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 40%, #172554 100%);
+  }
+
+  /* Subtle grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 100;
   }
 }
 
@@ -12,24 +23,45 @@
   .btn {
     @apply px-4 py-2 rounded-lg font-medium transition-colors;
   }
-  
+
   .btn-primary {
     @apply bg-blue-600 text-white hover:bg-blue-700;
   }
-  
+
   .btn-secondary {
-    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+    @apply bg-white/10 text-white hover:bg-white/20;
   }
-  
+
   .btn-danger {
     @apply bg-red-600 text-white hover:bg-red-700;
   }
-  
+
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply w-full px-3 py-2 border border-white/20 rounded-lg bg-white/5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
-  
+
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200;
+    @apply bg-white/5 rounded-xl shadow-sm border border-white/10 backdrop-blur-sm;
+  }
+
+  /* Tile states */
+  .tile-incomplete {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    @apply rounded-[14px] backdrop-blur-sm;
+  }
+
+  .tile-idea {
+    background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.08));
+    border: 1.5px solid rgba(251,191,36,0.25);
+    box-shadow: 0 0 20px rgba(251,191,36,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+    @apply rounded-[14px];
+  }
+
+  .tile-complete {
+    background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(96,165,250,0.1));
+    border: 1.5px solid rgba(52,211,153,0.3);
+    box-shadow: 0 0 24px rgba(52,211,153,0.12), inset 0 1px 0 rgba(255,255,255,0.08);
+    @apply rounded-[14px];
   }
 }

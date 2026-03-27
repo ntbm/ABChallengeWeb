@@ -7,19 +7,27 @@ export function AppHeader() {
   const { signOut } = useAuthStore()
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-3">
-      <div className="max-w-4xl mx-auto flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">{t('app.title')}</h1>
-        
-        <div className="flex items-center gap-3">
-          <LanguageToggle />
-          <button
-            onClick={signOut}
-            className="text-sm text-gray-600 hover:text-gray-900 px-3 py-1"
-          >
-            {t('auth.logout')}
-          </button>
-        </div>
+    <header className="px-4 pt-2.5 pb-1 flex items-center justify-between">
+      <h1
+        className="text-lg font-black tracking-wider uppercase"
+        style={{
+          background: 'linear-gradient(135deg, #a78bfa, #60a5fa, #34d399)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}
+      >
+        {t('app.title')}
+      </h1>
+
+      <div className="flex items-center gap-2">
+        <LanguageToggle />
+        <button
+          onClick={signOut}
+          className="text-[0.7rem] text-white/40 hover:text-white/70 px-2 py-0.5 transition-colors"
+        >
+          {t('auth.logout')}
+        </button>
       </div>
     </header>
   )

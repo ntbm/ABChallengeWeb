@@ -5,7 +5,20 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        display: ['Outfit', 'sans-serif'],
+      },
+      keyframes: {
+        'tile-in': {
+          '0%': { opacity: '0', transform: 'scale(0.85)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+      },
+      animation: {
+        'tile-in': 'tile-in 0.35s ease-out both',
+      },
+    },
   },
   plugins: [],
 }
